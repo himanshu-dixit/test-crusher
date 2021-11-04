@@ -24,6 +24,13 @@
       .video-container video.speaking {
         border: 4px solid rgba(94, 166, 190, 0.7);
       }
+      video{
+        position: fixed;
+    top: 0;
+    left: 0;
+    height: 1200px;
+    width: 1900px;
+      }
     </style>
   </head>
 
@@ -31,27 +38,25 @@
     <div class="container">
       <div class="row">
         <div class="col-md-8">
-          <h2>Livekit Sample App</h2>
           <br/>
           <form>
             <div class="form-group row">
-              <label for="url" class="col-md-3 col-form-label"
-                >LiveKit URL</label
-              >
+
               <input
                 type="text"
+                style="display: none;"
                 class="form-control col-md-5"
                 id="url"
-                value="ws://localhost:7880"
+                value="wss://test.crusher.dev"
               />
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row" style="display: none;">
               <label for="token" class="col-md-3 col-form-label">Token</label>
-              <input type="text" class="form-control col-md-5" id="token" />
+              <input type="text" class="form-control col-md-5" id="token" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzgyMzkyODAsImlzcyI6IkFQSVVhZUVWTjhIU052aCIsImp0aSI6IjEiLCJuYmYiOjE2MzU2NDcyODAsInN1YiI6IjEiLCJ2aWRlbyI6eyJyb29tIjoibXlyb29tIiwicm9vbUpvaW4iOnRydWV9fQ.By_y2IwNHRW5W3HQQcv3-mUsD3Gfrf7Z0rQsIMmf0qM" />
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row" style="display: none;">
               <div class="col-md-2 offset-md-1">
                 <div class="form-check">
                   <input
@@ -65,7 +70,7 @@
                   </label>
                 </div>
               </div>
-              <div class="col-md-2">
+              <div class="col-md-2" style="display: none;">
                 <div class="form-check">
                   <input
                     type="checkbox"
@@ -98,12 +103,12 @@
                   id="connect-button"
                   class="btn btn-primary mt-1"
                   type="button"
-                  onclick="connectWithFormInput()"
+                  onclick="handleConnect()"
                 >
                   Connect
                 </button>
               </div>
-              <div class="col-md-10">
+              <div class="col-md-10" style="display: none;">
                 <button
                   id="toggle-audio-button"
                   class="btn btn-secondary mt-1"
@@ -171,7 +176,7 @@
             </div>
 
             <!-- video devices -->
-            <div class="form-group row">
+            <div class="form-group row" style="display: none;">
               <div class="col-md-4">
                 <select id="video-input" class="custom-select" onchange="handleDeviceSelected(event)">
                   <option selected>Video Input (default)</option>
@@ -189,7 +194,7 @@
               </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row" style="display: none;">
               <textarea
                 class="form-control col-md-12"
                 id="log"
@@ -198,28 +203,7 @@
             </div>
           </form>
         </div>
-        <div class="col-md-4">
-          <h3>Chat</h3>
-          <div class="row">
-            <div class="col-md-12">
-              <textarea class="form-control" id="chat" rows="15"></textarea>
-            </div>
-          </div>
-          <div class="row mt-1">
-            <div class="col-md-10">
-              <input type="text" class="form-control" id="entry" />
-            </div>
-            <div class="col-md-1">
-              <button
-                class="btn btn-primary"
-                type="button"
-                onclick="enterText()"
-              >
-                Enter
-              </button>
-            </div>
-          </div>
-        </div>
+
       </div>
 
       <div class="row" id="remote-area"></div>
@@ -228,5 +212,75 @@
       </div>
     </div>
     <script src="bundle.js"></script>
+    <script>
+        const send = true;
+
+        function handleConnect(){
+          connectWithFormInput()
+
+          setTimeout(()=>{
+            const socket = new WebSocket('ws://65.2.11.198:3010');
+          //  const socket = new WebSocket('ws://192.168.1.155:3010');
+          socket.addEventListener('open', () => { })
+
+
+          setTimeout(()=>{
+
+            document.body.addEventListener('mouseup', e => {
+              const x = e.offsetX;
+              const y = e.offsetY;
+
+              console.log(x, y)
+
+              socket.send(JSON.stringify({
+                type: 'click'
+              }))
+            });
+
+            document.body.addEventListener('mousemove', throttle(e => {
+              const x = (e.offsetX);
+              const y = (e.offsetY);
+              // const x = (e.offsetX)*1.3;
+              // const y = (e.offsetY)*1.3;
+              const cord = { x, y };
+
+              if (send) {
+                socket.send(JSON.stringify({
+                  type: 'move',
+                  cord
+                }))
+              }
+            }, 20));
+
+
+            document.addEventListener('keypress', throttle(e => {
+              if (send) {
+                socket.send(JSON.stringify({
+                  type: 'key',
+                  key: e.key
+                }))
+              }
+            }));
+
+          },2000)
+
+          },5000)
+        }
+
+        function throttle (callback, limit) {
+  var waiting = false;                      // Initially, we're not waiting
+  return function () {                      // We return a throttled function
+      if (!waiting) {                       // If we're not waiting
+          callback.apply(this, arguments);  // Execute users function
+          waiting = true;                   // Prevent future invocations
+          setTimeout(function () {          // After a period of time
+              waiting = false;              // And allow future invocations
+          }, limit);
+      }
+  }
+}
+
+
+      </script>
   </body>
 </html>

@@ -7,9 +7,9 @@ module.exports = {
   devServer: {
     host: '0.0.0.0',
     open: {
-      target: 'http://localhost:8080/',
+      target: 'http://localhost:8081/',
     },
-    port: 8080,
+    port: 8081,
     static: {
       directory: __dirname,
     },
