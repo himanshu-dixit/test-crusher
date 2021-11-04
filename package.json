@@ -10,7 +10,7 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn exec tsc",
-    "build-docs": "yarn exec typedoc",
+    "build-docs": "yarn build-sample",
     "proto": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_out=./src/proto --ts_proto_opt=outputClientImpl=false,useOptionals=true -I../protocol ../protocol/livekit_rtc.proto ../protocol/livekit_models.proto",
     "sample": "cd example && webpack serve",
     "build-sample": "cd example && webpack && cp index.html dist/",
